@@ -705,6 +705,15 @@ npm run smoke:x402        # scheme verify/settle vs. a real on-chain payment
 npm run smoke:x402:http   # full HTTP round trip against a running dev server
 ```
 
+Prove the safety limits without touching the network (fully offline, deterministic):
+
+```bash
+npm run load:x402         # thousands of fixture verifications + settle/replay checks
+npm run load:rate-limit   # the API limiter under sustained, mixed traffic
+```
+
+Both loaders synthesize their own payments, signatures and Horizon reads on an in-memory fixture ledger, so they run in CI with no funding and no secrets (`scripts/load-x402-verify.ts`, `scripts/load-rate-limit.ts`). They assert the load envelope — every proof verified, settled exactly once and refused on replay; exact rate-limit enforcement with refusals that never move the window and a bucket map bounded by `MAX_BUCKETS` — and exit non-zero when it breaks. The same fixtures drive the node suites `tests/node/x402-scheme.test.ts`, `tests/node/x402-load.test.ts` and `tests/node/rate-limit-load.test.ts`.
+
 ---
 
 ## Tech stack
@@ -1069,6 +1078,8 @@ Every env var lives in `.env.example`. Quick reference:
 | `npm run verify:analytics`                   | Check the analytics gates the launch gate requires                                 |
 | `npm run smoke:onchain`                      | On-chain smoke test against the live deployment (`:full` adds resolve + squad)     |
 | `npm run smoke:x402` / `:http`               | Payment-scheme smoke against live Testnet / a full HTTP round trip                 |
+| `npm run load:x402`                          | Offline load test: fixture verification + settle/replay limits                      |
+| `npm run load:rate-limit`                    | Offline load test: the API rate limiter under mixed traffic                         |
 | `npm run test:smoke`                         | Node-native smoke tests (API validation, XMTP, db-index, etc.)                     |
 | `npm run test:research`                      | Research adapters, categories, SSRF guard, x402 discovery suites                   |
 | `npm run test:baskets`                       | Basket validation, virtual NAV and high-water fee suites                           |
