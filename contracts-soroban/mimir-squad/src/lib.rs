@@ -41,4 +41,4 @@ mod test_cancellation;
 #[cfg(test)]
 mod test_oracle;
 #[cfg(test)]
-mod test_batch_read;
+mod test_preview_parity;
